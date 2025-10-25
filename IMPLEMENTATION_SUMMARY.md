@@ -133,10 +133,13 @@ WALL-E/
 
 ## Lines of Code Statistics
 
+Approximate values at time of initial implementation:
 - **MCXN947 Firmware**: ~1,200 lines (C source + headers)
 - **ESP32C3 Firmware**: ~500 lines (Arduino C++)
 - **Documentation**: ~2,000 lines (Markdown)
 - **Total**: ~3,700 lines
+
+Note: Line counts are approximate and will change as the project evolves.
 
 ## Key Features Implemented
 
@@ -237,7 +240,7 @@ This implementation demonstrates:
 - **Range**: 100-200m (ESP-NOW)
 
 ### Requirements
-- **MCXN947**: ARM Cortex-M33, 150MHz, 256KB RAM
+- **MCXN947**: ARM Cortex-M33, 150MHz, 512KB RAM
 - **ESP32C3**: RISC-V, 160MHz, 400KB SRAM
 - **Power**: 7.4-12V battery, ~2-8A total
 - **Motors**: 4x DC with encoders, 12V rated
@@ -304,5 +307,4 @@ See LICENSE file in repository root.
 ---
 
 **Project Status**: ✅ Complete and ready for hardware testing
-**Last Updated**: 2025-10-25
 **Version**: 1.0.0
