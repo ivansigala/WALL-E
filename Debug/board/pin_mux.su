@@ -1,0 +1,5 @@
+/Users/davidbav/Documents/Proyecto_Embedidos/I2C_Example_lpi2c_interrupt_b2b_transfer_master_cm33_core0/drivers/fsl_clock.h:1488:20:CLOCK_EnableClock	24	static
+/Users/davidbav/Documents/Proyecto_Embedidos/I2C_Example_lpi2c_interrupt_b2b_transfer_master_cm33_core0/drivers/fsl_port.h:360:20:PORT_SetPinConfig	32	static
+../board/pin_mux.c:35:6:BOARD_InitBootPins	8	static
+../board/pin_mux.c:62:6:BOARD_InitPins	16	static
+../board/pin_mux.c:134:6:LPI2C2_InitPins	16	static

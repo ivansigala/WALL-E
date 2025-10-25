@@ -1,0 +1,7 @@
+/Users/davidbav/Documents/Proyecto_Embedidos/I2C_Example_lpi2c_interrupt_b2b_transfer_master_cm33_core0/drivers/fsl_clock.h:1488:20:CLOCK_EnableClock	24	static
+../board/clock_config.c:54:6:BOARD_InitBootClocks	8	static
+../board/clock_config.c:90:6:BOARD_BootClockFRO12M	24	static
+../board/clock_config.c:157:6:BOARD_BootClockFROHF48M	24	static
+../board/clock_config.c:230:6:BOARD_BootClockFROHF144M	24	static
+../board/clock_config.c:308:6:BOARD_BootClockPLL150M	48	static
+../board/clock_config.c:400:6:BOARD_BootClockPLL100M	48	static
