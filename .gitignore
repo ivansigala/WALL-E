@@ -1,0 +1,114 @@
+# Build artifacts
+*.o
+*.obj
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+*.axf
+*.d
+*.su
+
+# IDE files
+.settings/
+.cproject
+.project
+Debug/
+Release/
+.metadata/
+*.launch
+
+# MCUXpresso specific
+.mcuxpressoide_packages_support/
+/RemoteSystemsTempFiles/
+
+# Arduino/PlatformIO build files
+.pio/
+.vscode/
+.platformio
+*.pio
+build/
+lib/
+*.pioenvs
+*.piolibdeps
+
+# ESP32 specific
+*.bin
+*.elf
+*.map
+sdkconfig
+sdkconfig.old
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.cache
+
+# Python (if using scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Documentation builds
+docs/_build/
+site/
+
+# Editor backups
+*~
+\#*\#
+.\#*
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# Visual Studio Code
+.vscode/
+
+# Eclipse
+.settings/
+.project
+.cproject
+
+# Compiled Object files
+*.slo
+*.lo
+*.ko
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+
+# Shared objects
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
