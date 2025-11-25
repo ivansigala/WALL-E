@@ -1,0 +1,7 @@
+ExitOnError 1
+r
+h
+loadfile "C:\PROJECTS\EMBEDDED\OMNIROVER\frdmmcxn947_pwm_cm33_core0\Debug\frdmmcxn947_pwm_cm33_core0.hex"
+qc
+
+qc
