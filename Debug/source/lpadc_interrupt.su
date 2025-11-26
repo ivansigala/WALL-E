@@ -1,0 +1,9 @@
+/Users/davidbav/Documents/FINAL EMBEDDED/ADC_FOR_Joysticks_lpadc_interrupt_cm33_core0/CMSIS/core_cm33.h:2358:22:__NVIC_EnableIRQ	16	static
+/Users/davidbav/Documents/FINAL EMBEDDED/ADC_FOR_Joysticks_lpadc_interrupt_cm33_core0/drivers/fsl_common_arm.h:672:24:EnableIRQ	24	static
+/Users/davidbav/Documents/FINAL EMBEDDED/ADC_FOR_Joysticks_lpadc_interrupt_cm33_core0/drivers/fsl_gpio.h:345:20:GPIO_PinWrite	24	static
+/Users/davidbav/Documents/FINAL EMBEDDED/ADC_FOR_Joysticks_lpadc_interrupt_cm33_core0/drivers/fsl_gpio.h:374:20:GPIO_PortSet	16	static
+/Users/davidbav/Documents/FINAL EMBEDDED/ADC_FOR_Joysticks_lpadc_interrupt_cm33_core0/drivers/fsl_gpio.h:389:20:GPIO_PortClear	16	static
+/Users/davidbav/Documents/FINAL EMBEDDED/ADC_FOR_Joysticks_lpadc_interrupt_cm33_core0/drivers/fsl_lpadc.h:938:20:LPADC_EnableInterrupts	16	static
+/Users/davidbav/Documents/FINAL EMBEDDED/ADC_FOR_Joysticks_lpadc_interrupt_cm33_core0/drivers/fsl_lpadc.h:1128:20:LPADC_DoSoftwareTrigger	16	static
+../source/lpadc_interrupt.c:49:6:ADC0_IRQHandler	32	static
+../source/lpadc_interrupt.c:76:5:main	88	static

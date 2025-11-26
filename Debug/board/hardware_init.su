@@ -1,0 +1,3 @@
+/Users/davidbav/Documents/FINAL EMBEDDED/ADC_FOR_Joysticks_lpadc_interrupt_cm33_core0/drivers/fsl_clock.h:1488:20:CLOCK_EnableClock	24	static
+/Users/davidbav/Documents/FINAL EMBEDDED/ADC_FOR_Joysticks_lpadc_interrupt_cm33_core0/drivers/fsl_spc.h:1093:20:SPC_EnableActiveModeAnalogModules	16	static
+../board/hardware_init.c:20:6:BOARD_InitHardware	16	static
