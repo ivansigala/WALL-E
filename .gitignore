@@ -1,0 +1,114 @@
+# Build and compilation artifacts
+build/
+Debug/
+Release/
+*.o
+*.a
+*.so
+*.dll
+*.exe
+*.elf
+*.elf.map
+*.bin
+*.hex
+*.out
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+.project
+.cproject
+.settings/
+
+# MCUXpresso IDE specific
+.mcuxpressoide_packages_support/
+.metadata/
+**/Debug/
+**/Release/
+*.launch
+
+# ESP-IDF specific
+**/build/
+**/.idf_tools/
+**/.idf_exports
+managed_components/
+tools/idf_tools/
+tools/cmake/
+tools/tools_fallback/
+tools/xtensa-esp32-elf/
+tools/xtensa-esp32c3-elf/
+
+# Build artifacts
+*.o
+*.d
+*.a
+*.elf
+*.bin
+*.hex
+*.map
+*.asm
+compile_commands.json
+
+# Python/MicroPython
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.Python
+env/
+venv/
+ENV/
+*.egg
+.pytest_cache/
+
+# FreeRTOS/RTOS artifacts
+*.rtos
+*.log
+
+# Generated configuration files
+sdkconfig.old
+config.env
+*.in
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# OS specific
+Thumbs.db
+.DS_Store
+*.swp
+
+# License and logs
+*.log
+TAD_logs/
+*_TAD_logs/
+
+# Extracted/expanded archives
+*.zip_expanded/
+
+# Node dependencies (if using npm for tools)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE-specific paths
+.vscode/settings.json
+.vscode/launch.json
+!.vscode/extensions.json
+
+# MCXpresso and Eclipse artifacts
+RemoteSystemsTempFiles/
+.classpath
