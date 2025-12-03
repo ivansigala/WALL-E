@@ -16,7 +16,7 @@ graph TD
         RCMCU --> TXWIFI
     end
     
-    subgraph WL[""]
+    subgraph WL["WL"]
         direction LR
         WIRELESS["🌐 ESP-NOW WiFi Link<br/>2.4 GHz, 250m range"]
     end
@@ -353,7 +353,8 @@ The `.gitignore` file excludes:
 
 ## ✍️ Authors
 
-- Your Name / Team Name
+- Diego Sigala
+- David Barragan 
 - Dates & Contributions
 
 ---
