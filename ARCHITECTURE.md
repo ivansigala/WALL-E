@@ -9,60 +9,37 @@ The Omnirover project implements a wireless-controlled omnidirectional robot wit
 
 ## Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    REMOTE CONTROL SUBSYSTEM                      │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  User Interface               MCXN947 Processor    WiFi Bridge   │
-│  ┌──────────────────┐        ┌──────────────────┐ ┌────────────┐│
-│  │  Joysticks       │        │ ADC Driver       │ │ ESP32-C3   ││
-│  │  ├─ Analog (ADC) │────────→ ├─ Vector Ctrl   │ │ TX Module  ││
-│  │  ├─ Push Buttons │        │ ├─ Command Gen  │─→├─ SPI Slave ││
-│  │  │                │        │ ├─ Display/UI   │ │ ├─ ESP-NOW ││
-│  │  └─ (LPADC)       │        │ └─ Status Mgmt  │ │ │ ├─ WiFi  ││
-│  └──────────────────┘        └──────────────────┘ └────────────┘│
-│                                        │                  │       │
-│                                        └──────────────────┘       │
-│                                             SPI Bus               │
-│                              (Clock, MOSI, MISO, CS)             │
-│                                                                   │
-└─────────────────────────────────────────────────────────────────┘
-              │
-              │ ╔═══════════════════════════════════════════╗
-              │ ║    ESP-NOW Wireless Link (2.4 GHz WiFi)   ║
-              │ ║    Range: ~250m (ideal conditions)         ║
-              │ ║    Latency: ~10-100ms typical              ║
-              │ ╚═══════════════════════════════════════════╝
-              │
-              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      ROBOT SUBSYSTEM                             │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  WiFi Bridge              MCXN947 Processor       Motor Drivers  │
-│  ┌────────────┐           ┌──────────────────┐  ┌──────────────┐│
-│  │ ESP32-C3   │           │ Command Parser   │  │ Motor Module ││
-│  │ RX Module  │           │ ├─ Velocity Calc │─→├─ PWM Drivers ││
-│  │ ├─ ESP-NOW │──────────→│ ├─ Motion Ctrl   │  │ ├─ Motor 1   ││
-│  │ ├─ WiFi    │           │ ├─ Telemetry Mgmt│  │ ├─ Motor 2   ││
-│  │ └─ SPI Host│           │ └─ Feedback Loop │  │ ├─ Motor 3   ││
-│  │            │           │                  │  │ └─ Motor 4   ││
-│  └────────────┘           └──────────────────┘  └──────────────┘│
-│        △                           │                    │         │
-│        │                           │                    ▼         │
-│        │                   ┌─────────────────────────────────┐   │
-│        │                   │    Sensors (Feedback)           │   │
-│        │                   ├─ Encoder (4x)                  │   │
-│        │                   ├─ ADC (Motor Current, Voltage)  │   │
-│        │                   ├─ IMU/Gyro                      │   │
-│        │                   └─ Limit Switches                │   │
-│        │                           │                         │   │
-│        └───────────────────────────┤ (Telemetry Data)       │   │
-│              SPI Bus               └─────────────────────────┘   │
-│          (Data → RX Module)                                      │
-│                                                                   │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph REMOTE["Remote Control Subsystem"]
+        direction TB
+        JS["🎮 Joysticks<br/>Analog Inputs<br/>LPADC"]
+        RCMCU["MCXN947 Processor<br/>ADC Driver<br/>Vector Control<br/>Command Generation<br/>Display/UI<br/>Status Management"]
+        TXWIFI["ESP32-C3 TX Module<br/>SPI Slave<br/>ESP-NOW Driver<br/>WiFi Stack"]
+        JS -->|ADC Values| RCMCU
+        RCMCU -->|Command Packets| TXWIFI
+    end
+    
+    subgraph LINK[" "]
+        direction LR
+        WIRELESS["📡 ESP-NOW Wireless Link<br/>2.4 GHz WiFi<br/>Range: ~250m<br/>Latency: ~10-100ms"]
+    end
+    
+    subgraph ROBOT["Robot Subsystem"]
+        direction TB
+        RXWIFI["ESP32-C3 RX Module<br/>SPI Master<br/>ESP-NOW Driver<br/>WiFi Stack<br/>Bridge Logic"]
+        ROBMCU["MCXN947 Processor<br/>Command Parser<br/>Velocity Calculation<br/>Motion Control<br/>Telemetry Management<br/>Feedback Loop"]
+        MOTOR["Motor Module<br/>PWM Drivers<br/>Motor 1-4 Control"]
+        SENSOR["Sensors<br/>Encoders 4x<br/>ADC Current/Voltage<br/>IMU/Gyro<br/>Limit Switches"]
+        RXWIFI -->|SPI Master| ROBMCU
+        ROBMCU -->|PWM Control| MOTOR
+        MOTOR --> SENSOR
+        SENSOR -->|Feedback Data| ROBMCU
+        ROBMCU -->|Telemetry via SPI| RXWIFI
+    end
+    
+    TXWIFI -->|Commands| WIRELESS
+    WIRELESS -->|Telemetry| RXWIFI
 ```
 
 ## Component Descriptions
@@ -190,63 +167,94 @@ typedef struct {
 
 ## Data Flow Sequence (Full Communication Cycle)
 
-```
-TIME  EVENT                          COMPONENT
-────────────────────────────────────────────────
-T0    User moves joystick            User Input
-      │
-T1    ADC samples joystick           MCXN947 (Remote)
-      │
-T2    Command packet generated       MCXN947 (Remote)
-      │
-T3    SPI transaction starts         MCXN947 → ESP32-C3 TX
-      │ (MOSI: Command, MISO: Status)
-      │
-T4    Command received via SPI       ESP32-C3 TX
-      │
-T5    ESP-NOW packet transmitted    ESP32-C3 TX → RX
-      │ (~10-100ms in air)
-      │
-T6    ESP-NOW packet received        ESP32-C3 RX
-      │
-T7    SPI slave waits for master     ESP32-C3 RX (listening)
-      │
-T8    Robot MCXN947 polls SPI        MCXN947 (Robot)
-      │ (Initiates next command fetch)
-      │
-T9    Command data received via SPI  MCXN947 (Robot)
-      │
-T10   Motors updated                 Motor Drivers
-      │
-T11   Sensors sampled (speed, ADC)   Sensors
-      │
-T12   Telemetry packet staged        MCXN947 (Robot)
-      │
-T13   Next SPI transaction           MCXN947 Robot → ESP32-C3 RX
-      │ (MOSI: Telemetry, MISO: Command)
-      │
-T14   Telemetry received via SPI     ESP32-C3 RX
-      │
-T15   ESP-NOW telemetry sent         ESP32-C3 RX → TX
-      │
-T16   Telemetry received             ESP32-C3 TX
-      │
-T17   Display updated on remote      User Interface (Remote)
+```mermaid
+sequenceDiagram
+    actor User
+    participant RemoteADC as MCXN947 Remote<br/>ADC
+    participant RemoteCMD as MCXN947 Remote<br/>Command Gen
+    participant TX as ESP32-C3 TX<br/>SPI Slave
+    participant WiFi as ESP-NOW<br/>Wireless Link
+    participant RX as ESP32-C3 RX<br/>SPI Master
+    participant Robot as MCXN947 Robot<br/>Motor Control
+    participant Motors as Motors &<br/>Sensors
+    
+    User->>RemoteADC: Move Joystick
+    activate RemoteADC
+    RemoteADC->>RemoteCMD: Sample & ADC Values
+    deactivate RemoteADC
+    
+    activate RemoteCMD
+    RemoteCMD->>RemoteCMD: Calculate Vectors
+    RemoteCMD->>TX: SPI Transmit (Command)
+    deactivate RemoteCMD
+    
+    activate TX
+    TX->>WiFi: ESP-NOW Packet
+    deactivate TX
+    
+    activate WiFi
+    Note over WiFi: Wireless Transmission<br/>~10-100ms latency
+    WiFi->>RX: Receive Packet
+    deactivate WiFi
+    
+    activate RX
+    RX->>Robot: SPI Transmit (Command)
+    deactivate RX
+    
+    activate Robot
+    Robot->>Robot: Parse Command
+    Robot->>Motors: Update Motor PWM
+    deactivate Robot
+    
+    activate Motors
+    Motors->>Motors: Sample Sensors<br/>(Encoders, ADC, IMU)
+    deactivate Motors
+    
+    activate Robot
+    Motors->>Robot: Telemetry Data
+    Robot->>RX: SPI Transmit (Telemetry)
+    deactivate Robot
+    
+    activate RX
+    RX->>WiFi: ESP-NOW Telemetry
+    deactivate RX
+    
+    activate WiFi
+    WiFi->>TX: Receive Telemetry
+    deactivate WiFi
+    
+    activate TX
+    TX->>RemoteCMD: Display Update
+    deactivate TX
 ```
 
 ## Omnidirectional Motion Model
 
 The robot uses **4 wheels at 45° offset** (mecanum-style or holonomic):
 
-```
-      FRONT
-   M2 ↗   ↖ M3
-    ╱       ╲
-   ╱    ⊙    ╲      Legend:
-  ╱           ╲     ⊙ = Robot Center
- M1 ↙   ↙   ↖ M4    M1-4 = Motors
-   
-   BACK
+```mermaid
+graph TB
+    subgraph ROBOT[" "]
+        direction TB
+        M2["⚙️ M2<br/>Front-Left<br/>Vx - Vy - R*φ"]
+        M3["⚙️ M3<br/>Front-Right<br/>Vx - Vy + R*φ"]
+        CENTER["🤖<br/>Robot Center<br/>Position & Rotation"]
+        M1["⚙️ M1<br/>Rear-Left<br/>Vx + Vy - R*φ"]
+        M4["⚙️ M4<br/>Rear-Right<br/>Vx + Vy + R*φ"]
+        
+        M2 --> CENTER
+        M3 --> CENTER
+        M1 --> CENTER
+        M4 --> CENTER
+    end
+    
+    subgraph INPUT[" "]
+        VX["Velocity X Vx<br/>Forward/Backward"]
+        VY["Velocity Y Vy<br/>Left/Right"]
+        PHI["Angular Velocity φ<br/>Rotation"]
+    end
+    
+    INPUT -.->|Motor Speed<br/>Calculation| ROBOT
 ```
 
 **Motor Speed Calculation** (example):

@@ -6,23 +6,34 @@ A sophisticated embedded robotics system featuring an omnidirectional rover with
 
 This project implements a complete wireless robotics platform with the following architecture:
 
-```
-┌─────────────────────────────────────────────┐
-│         REMOTE CONTROL SYSTEM               │
-│  (MCXN947 + ESP32-C3 TX WiFi Module)       │
-│         Joystick Input, LCD Display         │
-└────────────────┬────────────────────────────┘
-                 │
-                 │ (ESP-NOW Wireless Link)
-                 │
-    ┌────────────┴────────────┐
-    │                         │
-┌───▼──────────────────┐  ┌──▼────────────────────┐
-│ OMNIROVER ROBOT      │  │ OMNIROVER CONTROLLER  │
-│ (MCXN947 MCU)        │  │ (Relay Node)          │
-│ Motor Control, Sens  │  │ (ESP32-C3 RX WiFi)   │
-└──────────────────────┘  │ Bridge SPI↔ESP-NOW   │
-                          └──────────────────────┘
+```mermaid
+graph TD
+    subgraph RC["Remote Control System<br/>(MCXN947 + ESP32-C3 TX)"]
+        JS["🎮 Joysticks<br/>ADC Input"]
+        RCMCU["MCXN947<br/>Command Gen"]
+        TXWIFI["ESP32-C3 TX<br/>SPI Slave"]
+        JS --> RCMCU
+        RCMCU --> TXWIFI
+    end
+    
+    subgraph WL[""]
+        direction LR
+        WIRELESS["🌐 ESP-NOW WiFi Link<br/>2.4 GHz, 250m range"]
+    end
+    
+    subgraph ROBOT["Robot System"]
+        RXWIFI["ESP32-C3 RX<br/>SPI Master"]
+        ROBMCU["MCXN947<br/>Motor Control"]
+        MOTORS["🔄 Motors<br/>4-Wheel Omni"]
+        SENSORS["📊 Sensors<br/>Encoders, ADC"]
+        RXWIFI --> ROBMCU
+        ROBMCU --> MOTORS
+        ROBMCU --> SENSORS
+    end
+    
+    TXWIFI -->|Commands| WIRELESS
+    WIRELESS -->|Telemetry| RXWIFI
+    SENSORS -->|Feedback| RXWIFI
 ```
 
 ### 🎯 System Components
@@ -167,26 +178,29 @@ idf.py -p COM3 monitor
 
 ## 📊 Communication Flow
 
-```
-User (Remote)
-    ↓
-Joystick Input (MCXN947 ADC)
-    ↓
-MCXN947 Remote Controller
-    ↓
-ESP32-C3 TX (Serial/SPI → ESP-NOW)
-    ↓
-[WiFi] ESP-NOW Protocol
-    ↓
-ESP32-C3 RX (ESP-NOW → SPI)
-    ↓
-MCXN947 Robot Controller
-    ↓
-Motors & Wheels (Omnidirectional 4-wheel)
-    ↓
-Sensors (ADC, IMU, Encoders)
-    ↓
-[Return telemetry]
+```mermaid
+sequenceDiagram
+    participant User
+    participant RCMCU as MCXN947<br/>Remote
+    participant TXESP as ESP32-C3 TX<br/>Remote WiFi
+    participant WiFi as ESP-NOW<br/>Wireless
+    participant RXESP as ESP32-C3 RX<br/>Robot WiFi
+    participant ROBMCU as MCXN947<br/>Robot
+    participant Motor as Motors &<br/>Sensors
+    
+    User->>RCMCU: Move Joystick
+    RCMCU->>RCMCU: Generate Command
+    RCMCU->>TXESP: SPI Transfer Command
+    TXESP->>WiFi: ESP-NOW Transmit
+    WiFi->>RXESP: Receive Command
+    RXESP->>ROBMCU: SPI Transfer Command
+    ROBMCU->>Motor: Update Motors
+    Motor->>Motor: Read Sensors
+    Motor->>ROBMCU: Sensor Feedback
+    ROBMCU->>RXESP: SPI Telemetry
+    RXESP->>WiFi: ESP-NOW Transmit
+    WiFi->>TXESP: Receive Telemetry
+    TXESP->>RCMCU: Display Update
 ```
 
 ## 🔧 Troubleshooting
